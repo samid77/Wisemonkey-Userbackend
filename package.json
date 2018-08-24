@@ -1,0 +1,25 @@
+{
+  "name": "wisemonkey-userbackend",
+  "version": "1.0.0",
+  "description": "Backend for wisemonkey user interface",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Wisemonkey",
+    "eCommerce",
+    "home",
+    "appliances"
+  ],
+  "author": "Dimas Septyanto",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "mongoose": "^5.2.9",
+    "mysql": "^2.16.0",
+    "nodemon": "^1.18.3"
+  }
+}
