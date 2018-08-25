@@ -1,13 +1,25 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const mysql = require('mysql');
+var app = express();
+
+/** Establish connection to front end */
 const reactConnection = require('cors');
+app.use(reactConnection());
+
+/** Establish a body parser */
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+
+/** Encryption configuration */
 const crypto = require('crypto');
 var secret = 'rahasia';
 
-var app = express();
+/** Establish file uploading */
+var upload = require('express-fileupload');
+app.use(upload());
 
 /** Register the database and connect */
+const mysql = require('mysql');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -17,13 +29,6 @@ const db = mysql.createConnection({
     multipleStatements: true,
 });
 db.connect();
-
-/** Making the node accessible by React */
-app.use(reactConnection());
-
-/** Bodyparser middleware setup */
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
 
 /** Establish a web server */
 app.listen(8005, (req, res) => {
@@ -47,9 +52,51 @@ app.post('/registration', (req, res) => {
             console.log(err);
             throw err;
         } else {
-            res.status(200).send('Registrasi berhasil');
+            var respond = 'oke';
+            res.status(200).send(respond);
+            console.log(respond);
         }
     });
 });
 
+/** User login */
+app.post('/userlogin', (req, res) => {
+    var Username = req.body.username;
+    var Password = req.body.password;
 
+    const encryptedPass = crypto.createHash('sha256', secret).update(Password).digest('hex');
+
+    var sql = `SELECT * FROM users`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+            console.log(err);
+        } else {
+            for(var i=0; i < result.length; i++){
+                if(Username === result[i].username && encryptedPass === result[i].password){
+                    console.log('Username & password match');
+                    var userID = result[i].id;
+                    res.send(userID.toString());
+                    res.status(200);
+                    break;
+                } else if(i === result.length - 1){
+                    console.log('Credentials did not match');
+                    res.status(404).send('Credential did not match');
+                }
+            }
+        }
+    })
+})
+/** Get user data */
+app.post('/getUserData', (req, res) => {
+    var id = req.body.userID;
+    var sql = `SELECT * FROM users WHERE id="${id}"`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+            console.log(err);
+        } else {
+            res.status(200).send(result);
+        }
+    })
+})
