@@ -105,6 +105,29 @@ app.post('/getUserData', (req, res) => {
     })
 })
 
+/** Get Sub Category Data */
+app.get('/getCategory', (req, res) => {
+    var sql = `SELECT subcatid, subcategory_name, category_name FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send(result);
+        }
+    })
+})
+
+/** Get Product by category */
+app.get('/listbycat', (req, res) => {
+    var sql = `SELECT * FROM product`;
+    db.query(sql, (err, result) => {
+        if(err){
+            console.log(err, 'Error on product list by category');
+        } else {
+            res.send(result)
+        }
+    })
+})
 /** Get featured product data */
 app.get('/featuredProduct', (req, res) => {
     var sql = `SELECT * FROM product LIMIT 8`;
@@ -150,6 +173,7 @@ app.post('/cart', (req, res) => {
     var productCode = req.body.productcode;
     var productPrice = req.body.productprice;
     var productName = req.body.productname;
+    var productImage = req.body.productimage;
     var status = 2;
 
     var sql = `SELECT * FROM cart WHERE user_id="${userID}" AND product_id="${productID}" AND status="${status}"`;
@@ -170,11 +194,11 @@ app.post('/cart', (req, res) => {
                     }
                 })
             } else {
-                var sql3 = `INSERT INTO cart (user_id, product_id, product_name, quantity, product_price, status) VALUES("${userID}","${productID}","${productName}","${Quantity}", "${productPrice}","${status}")`;
+                var sql3 = `INSERT INTO cart (user_id, product_id, product_name, quantity, product_image, product_price, status) VALUES("${userID}","${productID}","${productName}","${Quantity}", "${productImage}", "${productPrice}","${status}")`;
                 db.query(sql3, (err, result) => {
                     if(err){
-                        // throw err;
-                        console.log('error di sql3')
+                        throw err;
+                        // console.log('error di sql3')
                     } else {
                         var status = '1';
                         res.send(status);
