@@ -35,6 +35,10 @@ app.listen(8005, (req, res) => {
     console.log('Wisemonkey User Backend started at port 8005 ...');
 });
 
+/** Image configuration */
+app.use('/pics', express.static('pics'));
+
+
 /** Users Registration & Login Functionality */
 app.post('/registration', (req, res) => {
     var fullname = req.body.fullname;
@@ -99,4 +103,42 @@ app.post('/getUserData', (req, res) => {
             res.status(200).send(result);
         }
     })
+})
+
+/** Get featured product data */
+app.get('/featuredProduct', (req, res) => {
+    var sql = `SELECT * FROM product LIMIT 8`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+            console.log(err);
+        } else {
+            res.send(result);
+        }
+    })
+})
+/** Get discount product data */
+app.get('/discountProduct', (req, res) => {
+    var sql = `SELECT * FROM product LIMIT 8`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+            console.log(err);
+        } else {
+            res.send(result);
+        }
+    })
+})
+/** Product detail */
+app.get('/productDetail/:id', (req, res) => {
+    var productID = req.params.id;
+    var sql = `SELECT * FROM product WHERE id="${productID}"`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+            console.log(err);
+        } else {
+            res.send(result);
+        }
+    });
 })
