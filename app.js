@@ -142,3 +142,106 @@ app.get('/productDetail/:id', (req, res) => {
         }
     });
 })
+/** Order/Cart Process */
+app.post('/cart', (req, res) => {
+    var userID = req.body.userID;
+    var Quantity = req.body.num;
+    var productID = req.body.idproduct;
+    var productCode = req.body.productcode;
+    var productPrice = req.body.productprice;
+    var productName = req.body.productname;
+    var status = 2;
+
+    var sql = `SELECT * FROM cart WHERE user_id="${userID}" AND product_id="${productID}" AND status="${status}"`;
+
+    db.query(sql, (err, result) => {
+        if(err) {
+            // throw err;
+            console.log('error di sql1 cart');
+        } else {
+            if(result.length > 0){
+                var sql2 = `UPDATE cart SET quantity="${Quantity}" WHERE product_id="${productID}"`;
+                db.query(sql2, (err, result) => {
+                    if(err){
+                        console.log('error di sql2 cart')
+                    } else {
+                        var status = '1';
+                        res.send(status);
+                    }
+                })
+            } else {
+                var sql3 = `INSERT INTO cart (user_id, product_id, product_name, quantity, product_price, status) VALUES("${userID}","${productID}","${productName}","${Quantity}", "${productPrice}","${status}")`;
+                db.query(sql3, (err, result) => {
+                    if(err){
+                        // throw err;
+                        console.log('error di sql3')
+                    } else {
+                        var status = '1';
+                        res.send(status);
+                    }
+                });
+            }
+        }
+    });
+})
+
+/** Display data for cart */
+app.post('/displayCart', (req, res) => {
+    var userID = req.body.userID;
+    var sql = `SELECT * FROM cart WHERE user_id="${userID}" AND status="2";`
+    sql += `SELECT id, product_price * quantity AS "total_sub_price" FROM cart WHERE user_id="${userID}" AND status="2"`;
+    db.query(sql, (err, result) => {
+        if(err){
+            console.log('error di post displaycart');
+        } else {
+            res.send(result);
+        }
+    })
+})
+app.get('/displayCart', (req, res) => {
+    var sql = `SELECT * FROM master_delivery`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            res.send(result);
+        }
+    })
+})
+
+/** Update Cart Data */
+app.post('/updateCart', (req, res) => {
+    var cartID = req.body.cartID;
+    var quantity = req.body.newQuantity;
+    var userID = req.body.userID;
+
+    var sql = `UPDATE cart SET quantity="${quantity}" WHERE id="${cartID}" AND status="2"`;
+    db.query(sql, (err, result) => {
+        if(err){
+            throw err;
+        } else {
+            var getCartData = `SELECT * FROM cart WHERE user_id="${userID}" AND status="2";`
+            getCartData += `SELECT id, product_price * quantity AS "total_sub_price FROM cart WHERE user_id="${userID}" AND status="2"`;
+            db.query(getCartData, (err, result) => {
+                if(err){
+                    console.log('error di getCartData');
+                } else {
+                    res.send(result);
+                }
+            })
+        }
+    });
+})
+
+/** Hapus data Cart */
+app.post('/deleteCart', (req, res) => {
+    var cartID = req.body.cartID;
+    var sql = `DELETE FROM cart WHERE id="${cartID}"`;
+    db.query(sql, (err, result) => {
+        if(err) {
+            throw err;
+        } else {
+            res.send(result);
+        }
+    })
+})
