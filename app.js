@@ -107,7 +107,8 @@ app.post('/getUserData', (req, res) => {
 
 /** Get Sub Category Data */
 app.get('/getCategory', (req, res) => {
-    var sql = `SELECT subcatid, subcategory_name, category_name FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id`;
+    // var sql = `SELECT subcatid, subcategory_name, category_name FROM master_subcategory INNER JOIN master_category ON master_subcategory.category_id = master_category.id`;
+    var sql = `SELECT * FROM master_category`;
     db.query(sql, (err, result) => {
         if(err){
             throw err;
@@ -118,7 +119,7 @@ app.get('/getCategory', (req, res) => {
 })
 
 /** Get Product by category */
-app.get('/listbycat', (req, res) => {
+app.get('/productlist', (req, res) => {
     var sql = `SELECT * FROM product`;
     db.query(sql, (err, result) => {
         if(err){
@@ -147,6 +148,18 @@ app.get('/discountProduct', (req, res) => {
         if(err){
             throw err;
             console.log(err);
+        } else {
+            res.send(result);
+        }
+    })
+})
+/** Show product by category */
+app.post('/getByCategory', (req, res) => {
+    var catID = req.body.catID;
+    var sql = `SELECT * FROM product WHERE category_id="${catID}"`;
+    db.query(sql, (err, result) => {
+        if(err){
+            console.log(err, 'Error di /getByCategory');
         } else {
             res.send(result);
         }
@@ -245,10 +258,10 @@ app.post('/updateCart', (req, res) => {
             throw err;
         } else {
             var getCartData = `SELECT * FROM cart WHERE user_id="${userID}" AND status="2";`
-            getCartData += `SELECT id, product_price * quantity AS "total_sub_price FROM cart WHERE user_id="${userID}" AND status="2"`;
+            getCartData += `SELECT id, product_price * quantity AS "total_sub_price" FROM cart WHERE user_id="${userID}" AND status="2"`;
             db.query(getCartData, (err, result) => {
                 if(err){
-                    console.log('error di getCartData');
+                    console.log(err, 'error di getCartData');
                 } else {
                     res.send(result);
                 }
@@ -268,4 +281,44 @@ app.post('/deleteCart', (req, res) => {
             res.send(result);
         }
     })
+})
+
+/** Ambil daftar metode delivery/pengiriman & bank */
+app.get('/getDelivery', (req, res) => {
+    var sql = `SELECT * FROM master_delivery`;
+    db.query(sql, (err, result) => {
+        if(err){
+            console.log(err, 'Error di getDelivery')
+        } else {
+            res.send(result);
+        }
+    })
+})
+/** Get bank data */
+app.get('/getBank', (req, res) => {
+    var sql = `SELECT * FROM master_bank`;
+    db.query(sql, (err, result) => {
+        if(err){
+            console.log(err, 'Error di getbank')
+        } else {
+            res.send(result);
+        }
+    })
+})
+/** Hitung jumlah cart */
+app.post('/countCart', (req, res) => {
+    var userID = req.body.userID
+    var sql = `SELECT COUNT(*) AS "jumlah" FROM cart WHERE user_id="${userID}";`
+    sql += `SELECT * FROM cart WHERE user_id="${userID}"`;
+    db.query(sql, (err, result) => {
+        if(err){
+            console.log(err, 'Error di countCart/');
+        } else {
+            res.send(result);
+        }
+    })
+})
+/** Insert data to invoice */
+app.post('/insertInvoice', (req, res) => {
+
 })
